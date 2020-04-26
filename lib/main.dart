@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:quizzler/Question.dart';
 import 'package:quizzler/QuizzBrain.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 void main() => runApp(Quizzler());
 
@@ -30,8 +30,28 @@ class _QuizPageState extends State<QuizPage> {
   List<Icon> scoreKeeper = [];
   QuizzBrain quizzBrain = new QuizzBrain();
 
-  bool checkResult(Question question, bool value) =>
-      question.questionAnswer == value ? true : false;
+  void checkAnswer(bool userAnswer) {
+    setState(() {
+      if (quizzBrain.isFinished()) {
+        Alert(
+          context: context,
+          title: "QuizzBrain",
+          desc: "This is the end of the quizz",
+        ).show();
+
+        quizzBrain.resetQuestionNumber();
+        scoreKeeper = [];
+      } else {
+        scoreKeeper.add(addIcon(quizzBrain.getResult(userAnswer)));
+        quizzBrain.nexQuestion();
+      }
+    });
+  }
+
+  void resetQuizz() {
+    quizzBrain.resetQuestionNumber();
+    scoreKeeper.clear();
+  }
 
   Icon addIcon(bool isCorrect) {
     print('icon Added');
@@ -84,11 +104,7 @@ class _QuizPageState extends State<QuizPage> {
                 ),
               ),
               onPressed: () {
-                setState(() {
-                  scoreKeeper.add(addIcon(quizzBrain.getResult(true)));
-                  quizzBrain.nexQuestion();
-                });
-                //The user picked true.
+                checkAnswer(true);
               },
             ),
           ),
@@ -106,11 +122,7 @@ class _QuizPageState extends State<QuizPage> {
                 ),
               ),
               onPressed: () {
-                setState(() {
-                  scoreKeeper.add(addIcon(quizzBrain.getResult(true)));
-                  quizzBrain.nexQuestion();
-                });
-                //The user picked false.
+                checkAnswer(false);
               },
             ),
           ),
@@ -124,9 +136,3 @@ class _QuizPageState extends State<QuizPage> {
     );
   }
 }
-
-/*
-question1: 'You can lead a cow down stairs but not up stairs.', false,
-question2: 'Approximately one quarter of human bones are in the feet.', true,
-question3: 'A slug\'s blood is green.', true,
-*/
